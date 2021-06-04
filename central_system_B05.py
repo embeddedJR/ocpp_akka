@@ -14,33 +14,31 @@ except ModuleNotFoundError:
 
 from ocpp.routing import on
 from ocpp.v201 import ChargePoint as cp
-from ocpp.v201 import call_result
+from ocpp.v201 import call
 
 logging.basicConfig(level=logging.INFO)
 
 
 class ChargePoint(cp):
     async def set_variables_request(self):
-        request = call_result.SetVariablesPayload(
-          set_variable_data={
+        request = call.SetVariablesPayload(
+          set_variable_data= [
+              {
               'attributeType':'Actual',
-              'attributeValue':'Required. Value to be assigned to attribute of variable.' ,
-              'component':[
-                  {
-                      'name':'Akka EVACharge',
-                      'instance':'some random value',
-                  }
-              ],
-              'variable':[
-                  {
-                      'name':'Required. Name of the variable.'
-                  }
-              ]
+              'attributeValue':'Required',
+              "component": {
+                    "name": "Akka EVACharge",
+                    "instance": "some random value"
+        },
+                "variable": {
+                    "name": "Required. Name of the variable"
+                }
           }
+            ]
         )
         response = await self.call(request)
-        if response.status == 'Accepted':
-            print("SetVariable accepted")
+ #       if response.status == 'Accepted':
+ #           print("SetVariable accepted")
 
 
 async def on_connect(websocket, path):

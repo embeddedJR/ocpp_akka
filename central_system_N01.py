@@ -13,39 +13,38 @@ except ModuleNotFoundError:
     sys.exit(1)
 
 from ocpp.routing import on
-from ocpp.v201 import ChargePoint as cp, call
-from ocpp.v201 import call_result
+from ocpp.v201 import ChargePoint as cp
+from ocpp.v201 import call,call_result
 
 logging.basicConfig(level=logging.INFO)
 
 
 class ChargePoint(cp):
-
     async def get_log_request(self):
-        request = call.GetLogRequestPayload(
-            log_type='Diagnostics log',
-            request_id=123456,
-            log = {
-                "remoteLocation": "The URL"
-            }
-        )
-        response = await self.call(request)
+        request = call.GetLogPayload(
+          log_type='DiagnosticsLog',
+          request_id= 1234,
+          retries=2,
+          retry_interval= 30,
+          log=
+              {
+                  'remoteLocation': 'eiusmod ut',
+                  'oldestTimestamp': '2007-05-29T05:26:25.665Z',
+                  'latestTimestamp': '2020-12-05T19:31:32.232Z'
+              }
 
+        )
+
+        response = await self.call(request)
         if response.status == 'Accepted':
-            print("Connected to central system.")
+            print("GetLog accepted")
+
 
     @on('LogStatusNotification')
     def on_log_status_notification(self, **kwargs):
-        return call_result.LogStatusNotificationPayload(
-            evse_id=12346,
-            meter_value={
-                'time_stamp':'current_time=datetime.utcnow().isoformat()',
-                'sampled_value':[
-                    {
-                        'value':'12564356'
-                    }
-                ]
-            }
+            print('Got a LogStatusNotificationRequest!')
+            return call_result.LogStatusNotificationPayload(
+
         )
 
 async def on_connect(websocket, path):
@@ -78,7 +77,8 @@ async def on_connect(websocket, path):
     charge_point_id = path.strip('/')
     charge_point = ChargePoint(charge_point_id, websocket)
 
-    await charge_point.start()
+    await asyncio.gather(charge_point.start(),
+                        charge_point.get_log_request())
 
 
 async def main():

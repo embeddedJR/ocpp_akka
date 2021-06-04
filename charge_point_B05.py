@@ -14,7 +14,7 @@ except ModuleNotFoundError:
     sys.exit(1)
 
 
-from ocpp.v201 import call
+from ocpp.v201 import call_result
 from ocpp.v201 import ChargePoint as cp
 
 logging.basicConfig(level=logging.INFO)
@@ -22,25 +22,23 @@ logging.basicConfig(level=logging.INFO)
 
 class ChargePoint(cp):
 
-    @on('SetVariable')
+    @on('SetVariables')
     def on_set_variable(self, **kwargs):
         print('Got a SetVariableRequest!')
-        return call.SetVariablePayload(
-            {
+        return call_result.SetVariablesPayload(
+            set_variable_result=[
+                {
                 'attributeType': 'Actual',
-                'attributeValue': 'Required. Value to be assigned to attribute of variable.',
-                'component': [
-                    {
-                        'name': 'Akka EVACharge',
-                        'instance': 'some random value',
-                    }
-                ],
-                'variable': [
-                    {
-                        'name': 'Required. Name of the variable.'
-                    }
-                ]
+                'attributeStatus': 'Accepted',
+                "component": {
+                    "name": "Akka EVACharge",
+                    "instance": "some random value"
+                },
+                "variable": {
+                    "name": "Required. Name of the variable"
+                }
             }
+            ]
         )
 
 

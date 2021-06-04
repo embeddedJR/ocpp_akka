@@ -14,7 +14,7 @@ except ModuleNotFoundError:
     sys.exit(1)
 
 
-from ocpp.v201 import call, call_result
+from ocpp.v201 import call_result, call
 from ocpp.v201 import ChargePoint as cp
 
 logging.basicConfig(level=logging.INFO)
@@ -22,19 +22,20 @@ logging.basicConfig(level=logging.INFO)
 
 class ChargePoint(cp):
 
-    @on('GetLogRequest')
-    def on_get_log_request(self, action, **kwargs):
-        return call_result.GetLogRequestPayload(
-            status='Accepted',
-            filename='Logfile'
+    @on('GetLog')
+    def on_get_log(self, **kwargs):
+        print('Got a GetLogRequest!')
+        return call_result.GetLogPayload(
+            status='Accepted'
         )
 
-
     async def log_status_notification(self):
+        print(' Requesting Log status')
         request = call.LogStatusNotificationPayload(
-             status='Uploading',
-             request_id=123
-    )
+            status='Uploading',
+            request_id=1234
+                    )
+       # response = await self.call(request)
 
 
 async def main():
@@ -44,7 +45,8 @@ async def main():
     ) as ws:
 
         charge_point = ChargePoint('EVA_1', ws)
-        await asyncio.gather(charge_point.start())
+        await asyncio.gather(charge_point.start(),
+                             charge_point.log_status_notification())
 
 
 if __name__ == '__main__':
