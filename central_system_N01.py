@@ -41,8 +41,8 @@ class ChargePoint(cp):
 
 
     @on('LogStatusNotification')
-    def on_log_status_notification(self, **kwargs):
-            print('Got a LogStatusNotificationRequest!')
+    def on_log_status_notification(self, status, **kwargs):
+            print('Got a LogStatusNotificationRequest!', status)
             return call_result.LogStatusNotificationPayload(
 
         )

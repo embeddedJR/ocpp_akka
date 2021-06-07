@@ -30,12 +30,14 @@ class ChargePoint(cp):
         )
 
     async def log_status_notification(self):
-        print(' Requesting Log status')
+       await asyncio.sleep(10)
+       for i in ['Uploading', 'Uploaded'] :
         request = call.LogStatusNotificationPayload(
-            status='Uploading',
+            status= i,
             request_id=1234
                     )
-       # response = await self.call(request)
+        await self.call(request)
+        await asyncio.sleep(3)
 
 
 async def main():
