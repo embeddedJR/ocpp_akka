@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 from ocpp import charge_point
-
+import pickle
 try:
     import websockets
 except ModuleNotFoundError:
@@ -47,10 +47,14 @@ class ChargePoint(cp):
                 ]
             }
         )
+
         response = await self.call(request)
         if response.status == 'Accepted':
             print("SetChargingProfile  accepted")
+            with open('request.txt','wb') as outfile:
+                pickle.dump(request,outfile)
 
+            
 async def on_connect(websocket, path):
     """ For every new charge point that connects, create a ChargePoint
     instance and start listening for messages.
